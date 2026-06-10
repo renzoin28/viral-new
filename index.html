@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viral Generator AI</title>
+<style>
+body{font-family:Arial,sans-serif;background:#111;color:#fff;max-width:1100px;margin:auto;padding:20px}
+h1{color:#7c5cff}
+select,button,textarea,input{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none}
+button{background:#7c5cff;color:#fff;cursor:pointer}
+.card{background:#1e1e1e;padding:15px;border-radius:10px;margin:10px 0}
+</style>
+</head>
+<body>
+<h1>🚀 Viral Generator AI</h1>
+
+<label>Nicho</label>
+<select id="niche">
+<option value="NBA">NBA</option>
+<option value="TRUE CRIME">True Crime</option>
+<option value="MISTERIOS">Misterios</option>
+</select>
+
+<button onclick="generateTopics()">Generar Temas Virales</button>
+
+<div id="topics"></div>
+
+<h2>Generar Guión</h2>
+<input id="topic" placeholder="Tema seleccionado">
+<button onclick="generateScript()">Generar Guión</button>
+
+<textarea id="output" rows="20"></textarea>
+
+<script>
+const GEMINI_API_KEY="TU_API_KEY";
+
+async function askGemini(prompt){
+ const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,{
+ method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({
+ contents:[{parts:[{text:prompt}]}]
+ })
+ });
+ const d=await r.json();
+ return d?.candidates?.[0]?.content?.parts?.[0]?.text || "Sin respuesta";
+}
+
+async function generateTopics(){
+ const niche=document.getElementById("niche").value;
+ document.getElementById("topics").innerHTML="Generando...";
+ const prompt=`Genera 5 temas virales actuales para TikTok del nicho ${niche}. Devuelve lista numerada.`;
+ const text=await askGemini(prompt);
+ document.getElementById("topics").innerHTML=`<div class="card">${text.replace(/\n/g,"<br>")}</div>`;
+}
+
+async function generateScript(){
+ const topic=document.getElementById("topic").value;
+ const niche=document.getElementById("niche").value;
+
+ const prompt=`Genera un guion TikTok monetizable sobre ${topic}.
+ Nicho: ${niche}
+ Más de 220 palabras.
+ Hook potente.
+ Escenas cada 5 segundos.
+ CTA final.
+ Hashtags al final.`;
+
+ const text=await askGemini(prompt);
+ document.getElementById("output").value=text;
+}
+</script>
+</body>
+</html>
